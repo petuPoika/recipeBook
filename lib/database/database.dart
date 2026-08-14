@@ -18,16 +18,19 @@ class AppDatabase extends _$AppDatabase {
   /* Queries */
 
   //Get all recipes, newest first
+  //Stream gets continuous stream of results whenever the recipes table changes
   Stream<List<Recipe>> watchAllRecipes() {
     return (select(recipes)..orderBy([(r) => OrderingTerm.desc(r.createdAt)])).watch();
   } // watchAllRecipes
 
   // Get ingredients of the recipe
+  //Stream gets continuous stream of results whenever the recipes table changes
   Stream<List<RecipeIngredient>> watchIngredientsForRecipe(int recipeId){
     return (select(recipeIngredients)..where((i) => i.recipeId.equals(recipeId))).watch();
   } //watchIngredientsForRecipe
 
   // Get steps of the recipe
+  //Stream gets continuous stream of results whenever the recipes table changes
   Stream<List<RecipeStep>> watchStespsForRecipe(int recipeId) {
     return (select(recipeSteps)..where((s) => s.recipeId.equals(recipeId))
     ..orderBy([(s) => OrderingTerm.asc(s.stepNumber)])).watch();
