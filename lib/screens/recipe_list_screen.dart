@@ -38,6 +38,14 @@ class RecipeListScreen extends StatelessWidget {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          //TODO: navigation
+
+        }, // onPressed
+        tooltip: "Lisää Resepti",
+        child: const Icon(Icons.add),
+      ),
     );
   } //build
 
