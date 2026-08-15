@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../database/database.dart';
+import 'recipe_detail_screen.dart';
 
 class RecipeListScreen extends StatelessWidget {
   final AppDatabase db;
@@ -38,9 +39,15 @@ class RecipeListScreen extends StatelessWidget {
           );
         },
       ),
+      // Button for adding new recipes. Floating button is existing part of Scaffold
       floatingActionButton: FloatingActionButton(
+        // Push new screen (Recipe details) to stack
         onPressed: () {
-          //TODO: navigation
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetailScreen(db: db)),
+          );
 
         }, // onPressed
         tooltip: "Lisää Resepti",
