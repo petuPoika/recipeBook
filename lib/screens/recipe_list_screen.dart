@@ -99,7 +99,7 @@ class RecipeListScreen extends StatelessWidget {
           ),
         ],
       ),
-      
+
       // Button for adding new recipes. Floating button is existing part of Scaffold
       floatingActionButton: FloatingActionButton(
         // Push new screen (Recipe details) to stack
@@ -158,9 +158,21 @@ class _RecipeCard extends StatelessWidget {
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      '$prepTime * ${recipe.servings} annosta',
-                      style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Theme.of(context).hintColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          recipe.servings != null
+                          ? '$prepTime · ${recipe.servings} annosta'
+                          : '-',
+                          style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                        ),
+                      ],
                     ),
                 ],
               ),

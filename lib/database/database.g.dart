@@ -37,10 +37,9 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, Recipe> {
   late final GeneratedColumn<int> servings = GeneratedColumn<int>(
     'servings',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultValue: const Constant(0),
   );
   static const VerificationMeta _prepTimeMinutesMeta = const VerificationMeta(
     'prepTimeMinutes',
@@ -137,7 +136,7 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, Recipe> {
       servings: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}servings'],
-      )!,
+      ),
       prepTimeMinutes: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}prep_time_minutes'],
@@ -158,13 +157,13 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, Recipe> {
 class Recipe extends DataClass implements Insertable<Recipe> {
   final int id;
   final String title;
-  final int servings;
+  final int? servings;
   final int? prepTimeMinutes;
   final DateTime createdAt;
   const Recipe({
     required this.id,
     required this.title,
-    required this.servings,
+    this.servings,
     this.prepTimeMinutes,
     required this.createdAt,
   });
@@ -173,7 +172,9 @@ class Recipe extends DataClass implements Insertable<Recipe> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
-    map['servings'] = Variable<int>(servings);
+    if (!nullToAbsent || servings != null) {
+      map['servings'] = Variable<int>(servings);
+    }
     if (!nullToAbsent || prepTimeMinutes != null) {
       map['prep_time_minutes'] = Variable<int>(prepTimeMinutes);
     }
@@ -185,7 +186,9 @@ class Recipe extends DataClass implements Insertable<Recipe> {
     return RecipesCompanion(
       id: Value(id),
       title: Value(title),
-      servings: Value(servings),
+      servings: servings == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servings),
       prepTimeMinutes: prepTimeMinutes == null && nullToAbsent
           ? const Value.absent()
           : Value(prepTimeMinutes),
@@ -201,7 +204,7 @@ class Recipe extends DataClass implements Insertable<Recipe> {
     return Recipe(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
-      servings: serializer.fromJson<int>(json['servings']),
+      servings: serializer.fromJson<int?>(json['servings']),
       prepTimeMinutes: serializer.fromJson<int?>(json['prepTimeMinutes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -212,7 +215,7 @@ class Recipe extends DataClass implements Insertable<Recipe> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
-      'servings': serializer.toJson<int>(servings),
+      'servings': serializer.toJson<int?>(servings),
       'prepTimeMinutes': serializer.toJson<int?>(prepTimeMinutes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -221,13 +224,13 @@ class Recipe extends DataClass implements Insertable<Recipe> {
   Recipe copyWith({
     int? id,
     String? title,
-    int? servings,
+    Value<int?> servings = const Value.absent(),
     Value<int?> prepTimeMinutes = const Value.absent(),
     DateTime? createdAt,
   }) => Recipe(
     id: id ?? this.id,
     title: title ?? this.title,
-    servings: servings ?? this.servings,
+    servings: servings.present ? servings.value : this.servings,
     prepTimeMinutes: prepTimeMinutes.present
         ? prepTimeMinutes.value
         : this.prepTimeMinutes,
@@ -274,7 +277,7 @@ class Recipe extends DataClass implements Insertable<Recipe> {
 class RecipesCompanion extends UpdateCompanion<Recipe> {
   final Value<int> id;
   final Value<String> title;
-  final Value<int> servings;
+  final Value<int?> servings;
   final Value<int?> prepTimeMinutes;
   final Value<DateTime> createdAt;
   const RecipesCompanion({
@@ -310,7 +313,7 @@ class RecipesCompanion extends UpdateCompanion<Recipe> {
   RecipesCompanion copyWith({
     Value<int>? id,
     Value<String>? title,
-    Value<int>? servings,
+    Value<int?>? servings,
     Value<int?>? prepTimeMinutes,
     Value<DateTime>? createdAt,
   }) {
@@ -1100,7 +1103,7 @@ typedef $$RecipesTableCreateCompanionBuilder =
     RecipesCompanion Function({
       Value<int> id,
       required String title,
-      Value<int> servings,
+      Value<int?> servings,
       Value<int?> prepTimeMinutes,
       Value<DateTime> createdAt,
     });
@@ -1108,7 +1111,7 @@ typedef $$RecipesTableUpdateCompanionBuilder =
     RecipesCompanion Function({
       Value<int> id,
       Value<String> title,
-      Value<int> servings,
+      Value<int?> servings,
       Value<int?> prepTimeMinutes,
       Value<DateTime> createdAt,
     });
@@ -1388,7 +1391,7 @@ class $$RecipesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
-                Value<int> servings = const Value.absent(),
+                Value<int?> servings = const Value.absent(),
                 Value<int?> prepTimeMinutes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => RecipesCompanion(
@@ -1402,7 +1405,7 @@ class $$RecipesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String title,
-                Value<int> servings = const Value.absent(),
+                Value<int?> servings = const Value.absent(),
                 Value<int?> prepTimeMinutes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => RecipesCompanion.insert(

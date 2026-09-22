@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import '../database/database.dart';
 
@@ -37,7 +38,39 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     prepTimeController.dispose();
 
     super.dispose();
+
   } //dispose
+
+  Future<void> saveRecipe() async {
+    final title = titleController.text.trim(); // trim taxes extra spaces from beginning or end
+    final servings = int.tryParse(servingsController.text); // textfield string, try parse as int
+    final prepTime = int.tryParse(prepTimeController.text); // textfield string, try parse as int
+
+    // user must give name
+    if (title.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Anna reseptin nimi"),
+          ), 
+      );
+      return;
+    } //if
+
+    await widget.db.addRecipe(
+      RecipesCompanion.insert(
+        title: title,
+        servings: Value(servings),
+        prepTimeMinutes: Value(prepTime),
+      ),
+    );
+
+    // if this view is already deleted
+    if (!mounted) return;
+
+    Navigator.pop(context);
+
+  } //saveRecipe
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +132,19 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
+            const SizedBox(height: 32),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: saveRecipe,
+                child: const Text("Tallenna"),
+              ),
+            ),
           ],
         ),
-      )
+      ),
     );
   }
 }

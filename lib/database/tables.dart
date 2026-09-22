@@ -4,7 +4,7 @@ class Recipes extends Table {
   // with extra parentheses ()() at the end of lines, line will return the Column object
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
-  IntColumn get servings => integer().withDefault(const Constant(0))();
+  IntColumn get servings => integer().nullable()();
   IntColumn get prepTimeMinutes => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
