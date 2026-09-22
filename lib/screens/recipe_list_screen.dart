@@ -9,36 +9,97 @@ class RecipeListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: const Text("Reseptit")),
-      body: StreamBuilder<List<Recipe>>(
-        stream: db.watchAllRecipes(),
-        builder: (context, snapshot){
-          // if stream fails
-          if (snapshot.hasError){
-            return Center (child: Text("Virhe ${snapshot.error}"));
-          }// if
-          // Shows loading icon during database query
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          } // if
+      body: Column(
+        children: [
+          // header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    "Reseptit",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+                IconButton(onPressed: (){
+                  // TODO: search
+                },
+                icon: const Icon(Icons.search),
+                ),
+              ],
+            ),
+          ),
+
+          // Categories
+          SingleChildScrollView(
+            scrollDirection:  Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                _CategoryChip(
+                  label: "Kaikki",
+                  selected: true,
+                ),
+                _CategoryChip(
+                  label: "Ruoka",
+                  selected: false,
+                ),
+                _CategoryChip(
+                  label: "Välipala",
+                  selected: false,
+                ),
+                _CategoryChip(
+                  label: "Jälkiruoka",
+                  selected: false,
+                ),
+                _CategoryChip(
+                  label: "Juoma",
+                  selected: false,
+                ),
+              ],
+            ),
+          ),
           
+          const SizedBox(height: 12),
 
-          final recipes = snapshot.data!; // snapshot.data not null
-          // if user has no recipes show info text
-          if (recipes.isEmpty){
-            return const Center(child: Text("Et ole lisännyt yhtään reseptiä"));
-          } // if
+          Expanded( 
+            child: StreamBuilder<List<Recipe>>(
+              stream: db.watchAllRecipes(),
+              builder: (context, snapshot){
+                // if stream fails
+                if (snapshot.hasError){
+                  return Center (child: Text("Virhe ${snapshot.error}"));
+                }// if
+                // Shows loading icon during database query
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                } // if
+                
 
-          // separeted only shows recipes that fit in screen, better performance
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: recipes.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            // called when new recipe row appears to screen
-            itemBuilder: (context, index) => _RecipeCard(recipe: recipes[index]),
-          );
-        },
+                final recipes = snapshot.data!; // snapshot.data not null
+                // if user has no recipes show info text
+                if (recipes.isEmpty){
+                  return const Center(child: Text("Et ole lisännyt yhtään reseptiä"));
+                } // if
+
+                // separeted only shows recipes that fit in screen, better performance
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: recipes.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  // called when new recipe row appears to screen
+                  itemBuilder: (context, index) => _RecipeCard(recipe: recipes[index]),
+                );
+              },
+            ),
+          ),
+        ],
       ),
+      
       // Button for adding new recipes. Floating button is existing part of Scaffold
       floatingActionButton: FloatingActionButton(
         // Push new screen (Recipe details) to stack
@@ -111,3 +172,26 @@ class _RecipeCard extends StatelessWidget {
   } //build
     
 }//_RecipeCard
+
+class _CategoryChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+
+  const _CategoryChip({
+    required this.label,
+    required this.selected
+  });
+
+  @override
+  Widget build(BuildContext context){
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: Chip(
+        label: Text(label),
+        backgroundColor: selected
+        ? Theme.of(context).colorScheme.primaryContainer
+        : null
+      ),
+    );
+  }
+}
